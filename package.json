@@ -1,0 +1,22 @@
+{
+  "name": "jun25-t2w3-weather-dashboard-express",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env src/server.js",
+    "dev": "node --watch --env-file-if-exists=.env src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/macfluffy/jun25-t2w3-weather-dashboard-express.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/macfluffy/jun25-t2w3-weather-dashboard-express/issues"
+  },
+  "homepage": "https://github.com/macfluffy/jun25-t2w3-weather-dashboard-express#readme"
+}
