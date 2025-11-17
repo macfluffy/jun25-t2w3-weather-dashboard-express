@@ -1,9 +1,58 @@
 //Import the package
 const express = require("express");
-
-// Define the isntance of Express server
 const app = express();
+
+// Define the instance of Express server
 app.use(express.json());
+
+// Routes
+app.get("/", (request, response) => {
+    response.json({
+        "message": "Hello World!"
+    });
+});
+
+validateCoords = (request, response, next) => {
+    const {latitude, longitude} = request.body;
+    if (typeof latitude !== "number" || 
+        typeof longitude !== "number" || 
+        latitude < -90 || latitude > 90 ||
+        longitude < -180 || longitude > 180) {
+            return response.status(400).json({
+                "error": "Invalid or missing co-ordinates."
+            });
+    }
+
+    next();
+}
+
+app.post("/weather", validateCoords, async (request, response) => {
+    const {latitude, longitude} = request.body;
+    try {
+        const weatherResponse = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
+
+        const data = await weatherResponse.json();
+        if (!response.ok) {
+            // Pass API fetch error to error middleware
+            throw new Error(data.error || "Failed to fetch weather data");
+        }
+        
+        response.json({
+            location: {latitude, longitude},
+            current:data.current_weather,
+            units: data.current_weather_units
+        });
+    }
+    catch (error) {
+        /*response.json({
+            "message": "An error occured",
+            "data": error
+        });*/
+        next(error);
+    }
+
+    next();
+});
 
 // Logger middleware
 app.use((request, response, next) => {
@@ -11,11 +60,12 @@ app.use((request, response, next) => {
     next();
 });
 
-app.get("/", (request, response) => {
-    response.json({
-        "message": "Hello World!"
+app.use((error, request, response, next) => {
+    console.log("[WEATHER ERROR: ", error.stack);
+    response.status(500).json({
+        "error": "Whoops! Something broke with the weather!"
     });
 });
 
 //Export the app instance to server.js
-module.exports = {app};
+module.exports = app;

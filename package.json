@@ -1,22 +1,24 @@
 {
   "name": "jun25-t2w3-weather-dashboard-express",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "start": "node --env-file-if-exists=.env src/server.js",
-    "dev": "node --watch --env-file-if-exists=.env src/server.js"
+  "description": "Learning Express Middlewares and Authentication using the open-meteo API.",
+  "homepage": "https://github.com/macfluffy/jun25-t2w3-weather-dashboard-express#readme",
+  "bugs": {
+    "url": "https://github.com/macfluffy/jun25-t2w3-weather-dashboard-express/issues"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/macfluffy/jun25-t2w3-weather-dashboard-express.git"
   },
-  "keywords": [],
-  "author": "",
   "license": "ISC",
+  "author": "",
   "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/macfluffy/jun25-t2w3-weather-dashboard-express/issues"
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env src/server.js",
+    "dev": "node --watch --env-file-if-exists=.env src/server.js"
   },
-  "homepage": "https://github.com/macfluffy/jun25-t2w3-weather-dashboard-express#readme"
+  "dependencies": {
+    "express": "^5.1.0"
+  }
 }
