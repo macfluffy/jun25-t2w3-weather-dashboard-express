@@ -49,7 +49,31 @@ function blockAntartica(request, response, next) {
     next();
 }
 
-app.post("/weather", weatherLimiter, blockAntartica, validateCoords, async (request, response) => {
+dummyAuth = (request, response, next) => {
+    // For demo, simulate the authenticated users only
+    const authenticated = false;
+    if (!authenticated) {
+        return response.status(401).json({
+            "error": "You must be logged in!"
+        });
+    }
+
+    next();
+}
+
+checkAdminRole = (request, response, next) => {
+    // For demo, simulate getting admin check from the token/header
+    const user = {isAdmin: true};
+    if (!user || !user.isAdmin) {
+        response.status(403).json({
+            "error": "Admins only."
+        });
+    }
+
+    next();
+}
+
+app.post("/weather", dummyAuth, blockAntartica, validateCoords, async (request, response) => {
     const {latitude, longitude} = request.body;
     try {
         const weatherResponse = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
