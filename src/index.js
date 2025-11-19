@@ -1,10 +1,14 @@
 //Import the package
 const express = require("express");
+const jwt = require("jsonwebtoken");
 const rateLimit = require("express-rate-limit");
 const app = express();
 
 // Define the instance of Express server
 app.use(express.json());
+
+// Secret key
+const JWT_SECRET = process.JWT_SECRET || "dummykey";
 
 // Define the limiters
 // Limit to 5 /weather requests per minute per IP.
@@ -73,7 +77,47 @@ checkAdminRole = (request, response, next) => {
     next();
 }
 
-app.post("/weather", dummyAuth, blockAntartica, validateCoords, async (request, response) => {
+authenticateToken = (request, response, next) => {
+    const authHeader = request.headers["authorization"];
+    console.log(authHeader);
+    const token = authHeader && authHeader.split(" ")[1];
+
+    if (!token) {
+        response.status(401).json({
+            "error": "Token is missing."
+        });
+    }
+
+    jwt.verify(token, JWT_SECRET, (error, user) => {
+        if (error) {
+            return response.status(403).json({
+                "error": "Invalid or expired token."
+            });
+        }
+
+        request.user = user;
+        next();
+    });
+}
+
+app.post("/login", (request, response) => {
+    const {username, password} = request.body;
+
+    // Simulate user verification (replace it with real verification)
+    if (username =="user" && password == "pass") {
+        const payload = {username};
+        const token = jwt.sign(payload, JWT_SECRET, {expiresIn: "5m"});
+        return response.json({
+            token
+        });
+    }
+
+    response.status(401).json({
+        "error": "Invalid"
+    });
+});
+
+app.post("/weather", authenticateToken, blockAntartica, validateCoords, async (request, response) => {
     const {latitude, longitude} = request.body;
     try {
         const weatherResponse = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
