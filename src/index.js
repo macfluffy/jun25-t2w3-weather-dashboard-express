@@ -1,6 +1,7 @@
 //Import the package
 const express = require("express");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 const rateLimit = require("express-rate-limit");
 const app = express();
 
@@ -13,7 +14,7 @@ const JWT_SECRET = process.JWT_SECRET || "dummykey";
 // Define the limiters
 // Limit to 5 /weather requests per minute per IP.
 const weatherLimiter = rateLimit({
-    windowMS: 60 * 1000,
+    windowMs: 60 * 1000,
     limit: 5,
     message: {error: "Too many weather requests, cool down!"}
 });
@@ -100,10 +101,23 @@ authenticateToken = (request, response, next) => {
     });
 }
 
+app.post("/signup", async (request, response) => {
+    const {username, password} = request.body;
+
+    // Hash the password with 10 salt rounds (default)
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Store the username and password in the database (in our case, in the users list)
+    user.push({username, hashedPassword});
+    response.status(201).json({
+        "message": "User registered!"
+    });
+});
+
 app.post("/login", (request, response) => {
     const {username, password} = request.body;
 
-    // Simulate user verification (replace it with real verification)
+    /*// Simulate user verification (replace it with real verification)
     if (username =="user" && password == "pass") {
         const payload = {username};
         const token = jwt.sign(payload, JWT_SECRET, {expiresIn: "5m"});
@@ -114,6 +128,29 @@ app.post("/login", (request, response) => {
 
     response.status(401).json({
         "error": "Invalid"
+    });*/
+
+    // Advanced method
+    // Find the user (demo)
+    const user = users.find(u => u.username === username);
+    if (!user) {
+        return response.status(401).json({
+            "error": "Invalid credentials"
+        });
+    }
+
+    // Compare the password with hashedPassword
+    const isMatch = bcrypt.compare(password, user.password);
+    if (!isMatch) {
+        return response.status(401).json({
+            "error": "Invalid credentials!"
+        });
+    }
+
+    // Password is correct: Issue the JWT
+    const token = jwt.sign({username: user.username}, JWT_SECRET, {expiresIn: "5m"});
+    response.json({
+        token
     });
 });
 
